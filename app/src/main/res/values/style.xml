@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="TextPrimary">
+        <item name="android:textSize">18sp</item>
+        <item name="android:fontFamily">@font/roboto</item>
+    </style>
+    <style name="BigText">
+        <item name="android:textSize">32sp</item>
+        <item name="android:fontFamily">@font/roboto</item>
+    </style>
+</resources>
