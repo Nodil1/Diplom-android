@@ -6,8 +6,8 @@ class KalmanFilter() {
 
     private var currentState: State? = null
 
-    fun getLocation(): Location {
-        return currentState!!.location
+    fun getLocation(): Location? {
+        return currentState?.location
     }
 
     fun update(location: Location) {

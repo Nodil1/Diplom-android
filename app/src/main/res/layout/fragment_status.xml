@@ -42,24 +42,29 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:text="Текущее задание"
-            android:visibility="invisible"
+            android:visibility="gone"
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/status" />
 
         <Button
-            android:id="@+id/currentTask"
+            android:id="@+id/currentTaskBtn"
             style="@style/Widget.Material3.Button.IconButton.Filled"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="Выбрать задание"
-            android:visibility="invisible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/taskText" />
+        <com.nodil.diplom.ui.views.ViewTask
+            android:id="@+id/currentTaskView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
+        </com.nodil.diplom.ui.views.ViewTask>
         <Button
             android:id="@+id/startWork"
             style="@style/Widget.Material3.Button.ElevatedButton"
@@ -95,12 +100,14 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/stopWork" />
 
-
-        <com.nodil.diplom.ui.views.ViewTask
+        <Button
+            android:id="@+id/startTasks"
+            style="@style/Widget.Material3.Button.ElevatedButton"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </com.nodil.diplom.ui.views.ViewTask>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Выполняю задание"
+            android:visibility="invisible" />
 
     </LinearLayout>
 

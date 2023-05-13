@@ -1,6 +1,8 @@
 package com.nodil.diplom.data.repositories
 
 import android.util.Log
+import com.google.gson.JsonObject
+import com.nodil.diplom.data.model.socket.NewTaskSocketModel
 import com.nodil.diplom.domain.models.TaskModel
 import com.nodil.diplom.domain.repositories.TaskRepository
 import com.pusher.client.channel.ChannelEventListener
@@ -30,6 +32,7 @@ class TaskRepositoryApi: SocketRepository("task/"), TaskRepository{
             }
         )
         sub.bind("NewTask") {
+            onNewTask(gsonConverter.fromJson(it?.data, NewTaskSocketModel::class.java).task)
             Log.e("Messages event", it?.data.toString())
         }
     }

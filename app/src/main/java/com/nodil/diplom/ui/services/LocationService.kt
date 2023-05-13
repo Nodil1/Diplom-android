@@ -13,6 +13,7 @@ import com.nodil.diplom.domain.repositories.TaskRepository
 import com.nodil.diplom.domain.usecase.auth.GetMyIdUseCase
 import com.nodil.diplom.domain.usecase.geo.SaveGeoUseCase
 import com.nodil.diplom.util.KalmanFilter
+import com.nodil.diplom.util.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -30,7 +31,7 @@ class LocationService : Service() {
     }
 
     private lateinit var locationClient: FusedLocationProviderClient
-
+    private var lastLocation : Location? = null
     override fun onCreate() {
         super.onCreate()
 
@@ -56,6 +57,7 @@ class LocationService : Service() {
     }
     private fun subscribeToEvents(){
         taskRepository.subscribe(getMyIdUseCase.execute()){
+            NotificationHelper(this).showNotification("Новое задание ${it.name}", it.description)
 
         }
     }
@@ -64,7 +66,7 @@ class LocationService : Service() {
     private fun initLocationClient() {
         locationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
             .setWaitForAccurateLocation(true)
             .setMinUpdateIntervalMillis(1000)
             .setMaxUpdateDelayMillis(1000)
@@ -78,16 +80,24 @@ class LocationService : Service() {
             kalmanFilter.update(locationResult.lastLocation!!)
             val location = kalmanFilter.getLocation()
 
-            CoroutineScope(Dispatchers.IO).launch {
-                saveGeoUseCase.execute(
-                    GeoModel(
-                        location.latitude,
-                        location.longitude,
-                        Calendar.getInstance().time.toString()
-                    )
-                )
+            location ?: return
+            if (lastLocation == null) {
+                lastLocation = location
             }
-
+            lastLocation ?: return
+            println(location.distanceTo(lastLocation!!))
+            if (location.distanceTo(lastLocation!!) > 5f) {
+                lastLocation = location
+                CoroutineScope(Dispatchers.IO).launch {
+                    saveGeoUseCase.execute(
+                        GeoModel(
+                            location.latitude,
+                            location.longitude,
+                            Calendar.getInstance().time.toString()
+                        )
+                    )
+                }
+            }
             showNotification(location)
         }
     }

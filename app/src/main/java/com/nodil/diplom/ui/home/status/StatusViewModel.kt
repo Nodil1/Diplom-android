@@ -12,26 +12,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class StatusViewModel(
-    private val saveWorkerActionUseCase: SaveWorkerActionUseCase
 ): ViewModel() {
 
-    private val _status = MutableLiveData<Int>()
-    val status: LiveData<Int> get() = _status
 
-    fun changeStatus(status: Int) {
-        _status.value = status
-        when(WorkerStatus.fromInt(status)) {
-            WorkerStatus.WORKING -> {
-                saveAction(WorkerActionModel(WorkerAction.START_WORK.ordinal))
-            }
-            else -> {}
-        }
-
-    }
-
-    fun saveAction(workerActionModel: WorkerActionModel) {
-        CoroutineScope(Dispatchers.IO).launch {
-            saveWorkerActionUseCase.execute(workerActionModel)
-        }
-    }
 }

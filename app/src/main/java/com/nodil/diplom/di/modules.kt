@@ -5,6 +5,7 @@ import com.nodil.diplom.domain.repositories.AuthRepository
 import com.nodil.diplom.domain.repositories.GeoRepository
 import com.nodil.diplom.domain.repositories.TaskRepository
 import com.nodil.diplom.domain.repositories.WorkerActionRepository
+import com.nodil.diplom.domain.usecase.action.GetMyWorkerStatusUseCase
 import com.nodil.diplom.domain.usecase.action.SaveWorkerActionUseCase
 import com.nodil.diplom.domain.usecase.auth.GetMyIdUseCase
 import com.nodil.diplom.domain.usecase.auth.IsUserAuthUseCase
@@ -27,6 +28,7 @@ val domainModule = module {
     factory { GetMyTasksUseCase(get()) }
     factory { SaveWorkerActionUseCase(get()) }
     factory { GetMyIdUseCase(get()) }
+    factory { GetMyWorkerStatusUseCase(get()) }
 
 }
 
@@ -44,8 +46,8 @@ val dataModule = module {
 val presentationModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { SplashViewModel(get()) }
-    viewModel { StatusViewModel(get()) }
+    viewModel { StatusViewModel() }
     viewModel { TaskViewModel(get()) }
-    viewModel { HomeViewModel() }
+    viewModel { HomeViewModel(get(), get()) }
 
 }

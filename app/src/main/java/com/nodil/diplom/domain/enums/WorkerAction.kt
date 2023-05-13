@@ -5,7 +5,7 @@ enum class WorkerAction {
     TAKE_PAUSE,
     END_PAUSE,
     TAKE_TASK,
-    ARRIVED_TO_TASK,
     START_TASK,
     END_TASK,
+    END_WORK
 }

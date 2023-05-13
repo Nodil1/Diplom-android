@@ -10,11 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <com.nodil.diplom.ui.views.ViewTask
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
 
-        </com.nodil.diplom.ui.views.ViewTask>
     </LinearLayout>
 
 </ScrollView>

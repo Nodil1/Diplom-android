@@ -9,7 +9,9 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.nodil.diplom.databinding.FragmentStatusBinding
+import com.nodil.diplom.domain.enums.WorkerAction
 import com.nodil.diplom.domain.enums.WorkerStatus
+import com.nodil.diplom.domain.models.WorkerActionModel
 import com.nodil.diplom.ui.home.HomeViewModel
 import com.nodil.diplom.ui.services.LocationService
 import org.koin.androidx.viewmodel.ext.android.activityViewModel
@@ -17,7 +19,6 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class StatusFragment : Fragment() {
     private lateinit var binding: FragmentStatusBinding
-    private val vm: StatusViewModel by viewModel()
     private val homeViewModel: HomeViewModel by activityViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,29 +36,58 @@ class StatusFragment : Fragment() {
     }
 
     private fun observers() {
-        vm.status.observe(viewLifecycleOwner) {
-            binding.status.text = WorkerStatus.getStatusString(it)
-
+        homeViewModel.currentTask.observe(viewLifecycleOwner){
+            if (it !== null){
+                binding.currentTaskView.setTaskModel(it)
+                binding.currentTaskView.hideStart()
+                binding.currentTaskView.showAttachments()
+                binding.currentTaskView.visibility = View.VISIBLE
+                binding.currentTaskBtn.visibility = View.GONE
+            } else{
+                binding.currentTaskView.visibility = View.GONE
+            }
+        }
+        homeViewModel.status.observe(viewLifecycleOwner) {
+            binding.status.text = WorkerStatus.getStatusString(it.ordinal)
+            println(it)
             when (it) {
-                0 -> {
+                WorkerStatus.NOT_WORKING -> {
                     binding.startWork.visibility = View.VISIBLE
                     binding.stopWork.visibility = View.GONE
                     binding.pause.visibility = View.GONE
-                    binding.currentTask.visibility = View.INVISIBLE
-                    binding.taskText.visibility = View.INVISIBLE
+                    binding.currentTaskBtn.visibility = View.GONE
+                    binding.taskText.visibility = View.GONE
+                    binding.startTasks.visibility = View.GONE
                     requireActivity().stopService(Intent(requireContext(), LocationService::class.java))
                 }
-                1 -> {
+                WorkerStatus.WORKING -> {
                     binding.startWork.visibility = View.GONE
                     binding.stopWork.visibility = View.VISIBLE
                     binding.pause.visibility = View.VISIBLE
-                    binding.currentTask.visibility = View.VISIBLE
+                    binding.currentTaskBtn.visibility = View.VISIBLE
                     binding.taskText.visibility = View.VISIBLE
+                    binding.startTasks.visibility = View.GONE
+
                     val intent = Intent(requireContext(), LocationService::class.java)
                     ContextCompat.startForegroundService(requireContext(), intent)
                 }
+                WorkerStatus.GO_TO_TASK -> {
+                    binding.stopWork.visibility = View.GONE
+                    binding.pause.visibility = View.GONE
+                    binding.startTasks.visibility = View.VISIBLE
+                    println("AAA")
+                    println(binding.startTasks.visibility)
+                    println(binding.pause.visibility)
 
+                }
 
+                WorkerStatus.DO_TASK -> {
+                    binding.stopWork.visibility = View.GONE
+                    binding.pause.visibility = View.GONE
+
+                }
+
+                else -> {}
             }
         }
     }
@@ -70,7 +100,7 @@ class StatusFragment : Fragment() {
                     // Respond to negative button press
                 }
                 .setPositiveButton("Да") { _, _ ->
-                    vm.changeStatus(1)
+                    homeViewModel.changeStatus(WorkerStatus.WORKING)
                 }
                 .show()
         }
@@ -81,12 +111,16 @@ class StatusFragment : Fragment() {
                     // Respond to negative button press
                 }
                 .setPositiveButton("Да") { _, _ ->
-                    vm.changeStatus(0)
+                    homeViewModel.changeStatus(WorkerStatus.NOT_WORKING)
                 }
                 .show()
         }
 
-        binding.currentTask.setOnClickListener {
+        binding.startTasks.setOnClickListener {
+            homeViewModel.changeStatus(WorkerStatus.DO_TASK, homeViewModel.currentTask.value?.id)
+        }
+
+        binding.currentTaskBtn.setOnClickListener {
             homeViewModel.setPage(1)
         }
 
