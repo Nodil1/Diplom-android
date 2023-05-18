@@ -18,6 +18,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.nodil.diplom.BaseActivity
 import com.nodil.diplom.databinding.ActivityHomeBinding
+import com.nodil.diplom.domain.enums.WorkerStatus
 import com.nodil.diplom.ui.home.ui.main.SectionsPagerAdapter
 import com.nodil.diplom.ui.services.CustomContentObserver
 import com.nodil.diplom.util.PermissionChecker
@@ -44,7 +45,16 @@ class HomeActivity : BaseActivity() {
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setTitle("Загрузка...")
+            .setMessage("Дождитесь загрузки приложения")
+            .setCancelable(false)
+            .show()
+        homeViewModel.ready.observe(this) {
+            if (it){
+                dialog.dismiss()
+            }
+        }
         permissionChecker.request(
             Manifest.permission.ACCESS_FINE_LOCATION,
             100

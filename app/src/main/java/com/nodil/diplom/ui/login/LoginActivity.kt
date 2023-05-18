@@ -9,6 +9,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.core.widget.doOnTextChanged
 import com.google.android.material.snackbar.Snackbar
+import com.nodil.diplom.MainActivity
 import com.nodil.diplom.R
 import com.nodil.diplom.databinding.ActivityLoginBinding
 import com.nodil.diplom.ui.services.LocationService
@@ -59,6 +60,7 @@ class LoginActivity : AppCompatActivity() {
             if (it) {
                 Snackbar.make(binding.root, "Успешный вход", Snackbar.LENGTH_SHORT)
                     .show()
+                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
             } else {
                 binding.loginText.error = "Неправильный логин"
                 binding.passwordText.error = "Неправильный логин "

@@ -14,11 +14,11 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
 
     // for caching
     private lateinit var extraCanvas: Canvas
-    private lateinit var extraBitmap: Bitmap
+    lateinit var extraBitmap: Bitmap
 
     private val backgroundColor = ResourcesCompat.getColor(resources, android.R.color.transparent, null)
     private val drawColor = Color.BLACK
-
+    var onDraw = {}
     // Кисть для рисования
     private val paint = Paint().apply {
         color = drawColor
@@ -51,7 +51,12 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         val inset = 40
         frame = Rect(inset, inset, width - inset, height - inset)
     }
-
+    fun clear(){
+        extraBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        extraCanvas = Canvas(extraBitmap)
+        extraCanvas.drawColor(backgroundColor)
+        invalidate()
+    }
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
@@ -69,6 +74,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
         path.moveTo(motionTouchEventX, motionTouchEventY)
         currentX = motionTouchEventX
         currentY = motionTouchEventY
+
     }
 
     private val touchTolerance = ViewConfiguration.get(context).scaledTouchSlop
@@ -94,6 +100,7 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs){
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        onDraw()
         motionTouchEventX = event.x
         motionTouchEventY = event.y
 

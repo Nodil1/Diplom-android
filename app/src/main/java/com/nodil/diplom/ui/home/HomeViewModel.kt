@@ -20,6 +20,9 @@ class HomeViewModel(
 ): ViewModel() {
     private val _currentPage = MutableLiveData(0)
     val currentPage : LiveData<Int> get() = _currentPage
+
+    private val _ready = MutableLiveData(false)
+    val ready : LiveData<Boolean> get() = _ready
     init {
         println("INIT")
         CoroutineScope(Dispatchers.IO).launch {
@@ -33,6 +36,7 @@ class HomeViewModel(
             }
             _status.postValue(status.status)
             _currentTask.postValue(status.task)
+            _ready.postValue(true)
         }
     }
 
@@ -50,7 +54,11 @@ class HomeViewModel(
 
         when(status) {
             WorkerStatus.WORKING -> {
-                saveAction(WorkerActionModel(WorkerAction.START_WORK.ordinal))
+                if (_status.value == WorkerStatus.DO_TASK){
+                    saveAction(WorkerActionModel(WorkerAction.END_TASK.ordinal, idTask=idTask) )
+                } else{
+                    saveAction(WorkerActionModel(WorkerAction.START_WORK.ordinal))
+                }
             }
             WorkerStatus.GO_TO_TASK -> {
                 if (_status.value == WorkerStatus.WORKING){

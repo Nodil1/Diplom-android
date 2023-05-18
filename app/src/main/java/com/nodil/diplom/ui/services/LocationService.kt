@@ -78,7 +78,7 @@ class LocationService : Service() {
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
             kalmanFilter.update(locationResult.lastLocation!!)
-            val location = kalmanFilter.getLocation()
+            val location = locationResult.lastLocation
 
             location ?: return
             if (lastLocation == null) {
@@ -89,13 +89,18 @@ class LocationService : Service() {
             if (location.distanceTo(lastLocation!!) > 5f) {
                 lastLocation = location
                 CoroutineScope(Dispatchers.IO).launch {
-                    saveGeoUseCase.execute(
-                        GeoModel(
-                            location.latitude,
-                            location.longitude,
-                            Calendar.getInstance().time.toString()
+                    try{
+                        saveGeoUseCase.execute(
+                            GeoModel(
+                                location.latitude,
+                                location.longitude,
+                                Calendar.getInstance().time.toString()
+                            )
                         )
-                    )
+                    } catch (e: Exception){
+                        e.printStackTrace()
+                    }
+
                 }
             }
             showNotification(location)

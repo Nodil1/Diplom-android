@@ -11,9 +11,9 @@ class ErrorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_error)
         MaterialAlertDialogBuilder(this)
-            .setTitle("Ебаный рот")
+            .setTitle("емае")
             .setMessage(intent.getStringExtra("error"))
-            .setPositiveButton("Ну пиздец") { dialog, _ ->
+            .setPositiveButton("ну и ну") { dialog, _ ->
                 exitProcess(1)
             }
             .show()

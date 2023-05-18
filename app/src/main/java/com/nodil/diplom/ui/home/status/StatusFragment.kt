@@ -119,7 +119,9 @@ class StatusFragment : Fragment() {
         binding.startTasks.setOnClickListener {
             homeViewModel.changeStatus(WorkerStatus.DO_TASK, homeViewModel.currentTask.value?.id)
         }
-
+        binding.endTask.setOnClickListener {
+            homeViewModel.changeStatus(WorkerStatus.WORKING, homeViewModel.currentTask.value?.id)
+        }
         binding.currentTaskBtn.setOnClickListener {
             homeViewModel.setPage(1)
         }

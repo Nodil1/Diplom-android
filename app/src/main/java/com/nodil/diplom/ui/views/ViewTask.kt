@@ -32,7 +32,9 @@ class ViewTask( context: Context, attrs: AttributeSet?) : LinearLayout(context, 
             onStartTask(model!!)
         }
         binding.attachments.setOnClickListener {
-            context.startActivity(Intent(context, TaskAttachmentActivity::class.java))
+            val intent = Intent(context, TaskAttachmentActivity::class.java)
+            intent.putExtra("idTask", model!!.id)
+            context.startActivity(intent)
         }
     }
 
