@@ -49,7 +49,6 @@ class StatusFragment : Fragment() {
         }
         homeViewModel.status.observe(viewLifecycleOwner) {
             binding.status.text = WorkerStatus.getStatusString(it.ordinal)
-            println(it)
             when (it) {
                 WorkerStatus.NOT_WORKING -> {
                     binding.startWork.visibility = View.VISIBLE
@@ -67,6 +66,7 @@ class StatusFragment : Fragment() {
                     binding.currentTaskBtn.visibility = View.VISIBLE
                     binding.taskText.visibility = View.VISIBLE
                     binding.startTasks.visibility = View.GONE
+                    binding.endTask.visibility = View.GONE
 
                     val intent = Intent(requireContext(), LocationService::class.java)
                     ContextCompat.startForegroundService(requireContext(), intent)
@@ -75,16 +75,14 @@ class StatusFragment : Fragment() {
                     binding.stopWork.visibility = View.GONE
                     binding.pause.visibility = View.GONE
                     binding.startTasks.visibility = View.VISIBLE
-                    println("AAA")
-                    println(binding.startTasks.visibility)
-                    println(binding.pause.visibility)
 
                 }
 
                 WorkerStatus.DO_TASK -> {
                     binding.stopWork.visibility = View.GONE
                     binding.pause.visibility = View.GONE
-
+                    binding.startTasks.visibility = View.GONE
+                    binding.endTask.visibility = View.VISIBLE
                 }
 
                 else -> {}
@@ -121,6 +119,7 @@ class StatusFragment : Fragment() {
         }
         binding.endTask.setOnClickListener {
             homeViewModel.changeStatus(WorkerStatus.WORKING, homeViewModel.currentTask.value?.id)
+            
         }
         binding.currentTaskBtn.setOnClickListener {
             homeViewModel.setPage(1)

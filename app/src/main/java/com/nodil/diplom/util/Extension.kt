@@ -1,5 +1,6 @@
 package com.nodil.diplom.util
 
+import android.app.ActivityManager
 import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
@@ -45,4 +46,14 @@ fun Context.getFilesFromInternalStorageFolder(folderName: String): List<String> 
     }
 
     return emptyList()
+}
+
+fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    for (service in activityManager.getRunningServices(Int.MAX_VALUE)) {
+        if (serviceClass.name == service.service.className) {
+            return true
+        }
+    }
+    return false
 }

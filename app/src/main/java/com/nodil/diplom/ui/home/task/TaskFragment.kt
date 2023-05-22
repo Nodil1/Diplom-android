@@ -33,19 +33,17 @@ class TaskFragment : Fragment() {
         // Inflate the layout for this fragment
         binding = FragmentTaskBinding.inflate(inflater, container, false)
         observers()
-        vm.loadMyTasks()
 
         return binding.root
     }
 
     private fun observers() {
-        vm.myTask.observe(viewLifecycleOwner) {
+        homeViewModel.myTask.observe(viewLifecycleOwner) {
             it.onEach { taskModel ->
                 val taskView = ViewTask(requireActivity(), null)
                 taskView.setTaskModel(taskModel)
                 binding.taskList.addView(taskView)
                 taskView.onStartTask = {_it ->
-                    println(homeViewModel.status.value)
                     if (homeViewModel.status.value !== WorkerStatus.WORKING) {
                         Snackbar.make(binding.root, "У вас уже есть задание, которое вы выполняете", Snackbar.LENGTH_SHORT)
                             .show()

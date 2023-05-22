@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
+import com.nodil.diplom.ui.home.map.MapsFragment
 import com.nodil.diplom.ui.home.status.StatusFragment
 import com.nodil.diplom.ui.home.task.TaskFragment
 
 private val TAB_TITLES = arrayOf(
     "Статус",
-    "Работа"
+    "Работа",
+    "Карта"
 )
 
 /**
@@ -22,7 +24,8 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
     override fun getItem(position: Int): Fragment {
         return when (position) {
             0 -> StatusFragment.newInstance()
-            else -> TaskFragment.newInstance()
+            1 -> TaskFragment.newInstance()
+            else -> MapsFragment()
         }
     }
 
@@ -32,6 +35,6 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager) :
 
     override fun getCount(): Int {
         // Show 2 total pages.
-        return 2
+        return 3
     }
 }

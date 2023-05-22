@@ -2,32 +2,34 @@ package com.nodil.diplom.util
 
 import android.location.Location
 
-class KalmanFilter() {
+class KalmanFilter {
 
-    private var currentState: State? = null
+    private var x: Double = 0.0 // координата широты
+    private var y: Double = 0.0 // координата долготы
+    private var Px: Double = 1.0 // ковариационная матрица для x
+    private var Py: Double = 1.0 // ковариационная матрица для y
+    private val Q: Double = 0.000001 // процессный шум
+    private val R: Double = 0.01 // измерительный шум
 
-    fun getLocation(): Location? {
-        return currentState?.location
+    fun filter(location: Location): Location {
+        val latitude = location.latitude
+        val longitude = location.longitude
+
+        // Применяем фильтр Калмана к координате широты
+        val Kx = Px / (Px + R)
+        x += Kx * (latitude - x)
+        Px = (1 - Kx) * Px + Q
+
+        // Применяем фильтр Калмана к координате долготы
+        val Ky = Py / (Py + R)
+        y += Ky * (longitude - y)
+        Py = (1 - Ky) * Py + Q
+
+        // Создаем новый объект Location с отфильтрованными координатами
+        val filteredLocation = Location(location)
+        filteredLocation.latitude = y
+        filteredLocation.longitude = x
+
+        return filteredLocation
     }
-
-    fun update(location: Location) {
-        if (currentState == null) {
-            currentState = State(location, 1.0, 1.0)
-            return
-        }
-
-        val kalmanGain = currentState!!.variance / (currentState!!.variance + 10.0)
-        val newLocation = Location("KalmanFilter")
-        newLocation.accuracy = location.accuracy
-        newLocation.latitude =
-            (location.latitude * kalmanGain) + (currentState!!.location.latitude * (1 - kalmanGain))
-        newLocation.longitude =
-            (location.longitude * kalmanGain) + (currentState!!.location.longitude * (1 - kalmanGain))
-
-
-        val newVariance = (1 - kalmanGain) * currentState!!.variance
-        currentState = State(newLocation, newVariance, kalmanGain)
-    }
-
-    data class State(val location: Location, val variance: Double, val kalmanGain: Double)
 }

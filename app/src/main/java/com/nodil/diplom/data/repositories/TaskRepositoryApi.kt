@@ -14,7 +14,7 @@ import io.ktor.client.statement.*
 class TaskRepositoryApi: SocketRepository("task/"), TaskRepository{
     override suspend fun getMyTasks(): Array<TaskModel> {
         val response = client.get("myTasks")
-
+        println(response.bodyAsText())
         return response.body()
     }
 
@@ -23,7 +23,6 @@ class TaskRepositoryApi: SocketRepository("task/"), TaskRepository{
             "workerTask.$myId",
             object : ChannelEventListener {
                 override fun onEvent(event: PusherEvent?) {
-                    println(event?.data)
                 }
 
                 override fun onSubscriptionSucceeded(p0: String?) {
@@ -33,6 +32,23 @@ class TaskRepositoryApi: SocketRepository("task/"), TaskRepository{
         )
         sub.bind("NewTask") {
             onNewTask(gsonConverter.fromJson(it?.data, NewTaskSocketModel::class.java).task)
+            Log.e("Messages event", it?.data.toString())
+        }
+    }
+    override fun subscribeNotify(myId: Int, onNotify: (String) -> Unit) {
+        val sub = pusher.subscribe(
+            "workerNotify.$myId",
+            object : ChannelEventListener {
+                override fun onEvent(event: PusherEvent?) {
+                }
+
+                override fun onSubscriptionSucceeded(p0: String?) {
+                    Log.e("AUTH workerNotify", p0.toString())
+                }
+            }
+        )
+        sub.bind("WorkerNotify") {
+            onNotify(gsonConverter.fromJson(it?.data, Map::class.java)["message"].toString())
             Log.e("Messages event", it?.data.toString())
         }
     }

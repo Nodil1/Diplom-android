@@ -22,7 +22,13 @@ class PermissionChecker(private val context: Context) {
             requestCode
         )
     }
-
+    fun request(permission: Array<String>, requestCode: Int) {
+        ActivityCompat.requestPermissions(
+            (context as AppCompatActivity),
+            permission,
+            requestCode
+        )
+    }
     fun shouldShowRequestRationale(permission: String): Boolean {
         return ActivityCompat.shouldShowRequestPermissionRationale(
             (context as AppCompatActivity),

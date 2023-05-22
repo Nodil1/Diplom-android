@@ -9,6 +9,7 @@ import com.nodil.diplom.domain.models.TaskModel
 import com.nodil.diplom.domain.models.WorkerActionModel
 import com.nodil.diplom.domain.usecase.action.GetMyWorkerStatusUseCase
 import com.nodil.diplom.domain.usecase.action.SaveWorkerActionUseCase
+import com.nodil.diplom.domain.usecase.task.GetMyTasksUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -16,22 +17,24 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     private val saveWorkerActionUseCase: SaveWorkerActionUseCase,
-    private val getMyWorkerStatusUseCase: GetMyWorkerStatusUseCase
-): ViewModel() {
+    private val getMyWorkerStatusUseCase: GetMyWorkerStatusUseCase,
+    private val getMyTasksUseCase: GetMyTasksUseCase
+
+) : ViewModel() {
     private val _currentPage = MutableLiveData(0)
-    val currentPage : LiveData<Int> get() = _currentPage
+    val currentPage: LiveData<Int> get() = _currentPage
 
     private val _ready = MutableLiveData(false)
-    val ready : LiveData<Boolean> get() = _ready
+    val ready: LiveData<Boolean> get() = _ready
+
     init {
-        println("INIT")
         CoroutineScope(Dispatchers.IO).launch {
             val status = getMyWorkerStatusUseCase.execute()
-            println(status)
-            if (status.status != WorkerStatus.NOT_WORKING && status.status !== WorkerStatus.WORKING){
+            loadMyTasks()
+            if (status.status != WorkerStatus.NOT_WORKING && status.status !== WorkerStatus.WORKING) {
                 _status.postValue(WorkerStatus.WORKING)
-                println("Enable")
-                delay(1000
+                delay(
+                    1000
                 )
             }
             _status.postValue(status.status)
@@ -40,9 +43,6 @@ class HomeViewModel(
         }
     }
 
-    fun setPage(page: Int){
-        _currentPage.value = page
-    }
 
     private val _status = MutableLiveData<WorkerStatus>()
     val status: LiveData<WorkerStatus> get() = _status
@@ -50,32 +50,46 @@ class HomeViewModel(
     private val _currentTask = MutableLiveData<TaskModel?>(null)
     val currentTask: LiveData<TaskModel?> get() = _currentTask
 
+    private val _myTask = MutableLiveData<Array<TaskModel>>()
+    val myTask: LiveData<Array<TaskModel>> get() = _myTask
+
+    fun loadMyTasks() {
+        CoroutineScope(Dispatchers.IO).launch {
+            _myTask.postValue(getMyTasksUseCase.execute())
+        }
+    }
+    fun setPage(page: Int){
+        _currentPage.value = page
+    }
     fun changeStatus(status: WorkerStatus, idTask: Int? = null) {
 
-        when(status) {
+        when (status) {
             WorkerStatus.WORKING -> {
-                if (_status.value == WorkerStatus.DO_TASK){
-                    saveAction(WorkerActionModel(WorkerAction.END_TASK.ordinal, idTask=idTask) )
-                } else{
+                if (_status.value == WorkerStatus.DO_TASK) {
+                    saveAction(WorkerActionModel(WorkerAction.END_TASK.ordinal, idTask = idTask))
+                    _currentTask.value = null
+                } else {
                     saveAction(WorkerActionModel(WorkerAction.START_WORK.ordinal))
                 }
             }
             WorkerStatus.GO_TO_TASK -> {
-                if (_status.value == WorkerStatus.WORKING){
-                    saveAction(WorkerActionModel(WorkerAction.TAKE_TASK.ordinal, idTask=idTask) )
+                if (_status.value == WorkerStatus.WORKING) {
+                    saveAction(WorkerActionModel(WorkerAction.TAKE_TASK.ordinal, idTask = idTask))
                 }
             }
             WorkerStatus.DO_TASK -> {
-                saveAction(WorkerActionModel(WorkerAction.START_TASK.ordinal, idTask=idTask) )
+                saveAction(WorkerActionModel(WorkerAction.START_TASK.ordinal, idTask = idTask))
             }
             else -> {}
         }
         _status.value = status
 
     }
-    fun setCurrentTask(taskModel: TaskModel){
+
+    fun setCurrentTask(taskModel: TaskModel) {
         _currentTask.value = taskModel
     }
+
     fun saveAction(workerActionModel: WorkerActionModel) {
         CoroutineScope(Dispatchers.IO).launch {
             saveWorkerActionUseCase.execute(workerActionModel)

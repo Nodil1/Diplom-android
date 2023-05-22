@@ -13,6 +13,8 @@ import com.nodil.diplom.domain.repositories.TaskRepository
 import com.nodil.diplom.domain.usecase.auth.GetMyIdUseCase
 import com.nodil.diplom.domain.usecase.geo.SaveGeoUseCase
 import com.nodil.diplom.util.KalmanFilter
+import com.nodil.diplom.util.LastLocationHolder
+import com.nodil.diplom.util.LocationFilter
 import com.nodil.diplom.util.NotificationHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,13 +27,14 @@ class LocationService : Service() {
     private val saveGeoUseCase: SaveGeoUseCase by inject()
     private val getMyIdUseCase: GetMyIdUseCase by inject()
     private val taskRepository: TaskRepository by inject()
+    private val locationFilter = LocationFilter()
 
     companion object {
         const val CHANNEL_ID = "LocationServiceChannel"
     }
 
     private lateinit var locationClient: FusedLocationProviderClient
-    private var lastLocation : Location? = null
+    private var lastLocation: Location? = null
     override fun onCreate() {
         super.onCreate()
 
@@ -55,10 +58,14 @@ class LocationService : Service() {
         super.onDestroy()
         stopLocationUpdates()
     }
-    private fun subscribeToEvents(){
-        taskRepository.subscribe(getMyIdUseCase.execute()){
+
+    private fun subscribeToEvents() {
+        taskRepository.subscribe(getMyIdUseCase.execute()) {
             NotificationHelper(this).showNotification("Новое задание ${it.name}", it.description)
 
+        }
+        taskRepository.subscribeNotify(getMyIdUseCase.execute()) {
+            NotificationHelper(this).showNotification("Сообщение от менеджера", it)
         }
     }
 
@@ -66,10 +73,9 @@ class LocationService : Service() {
     private fun initLocationClient() {
         locationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 2000)
             .setWaitForAccurateLocation(true)
-            .setMinUpdateIntervalMillis(1000)
-            .setMaxUpdateDelayMillis(1000)
+            .setMinUpdateDistanceMeters(3f)
             .build()
 
         locationClient.requestLocationUpdates(locationRequest, locationCallback, null)
@@ -77,19 +83,14 @@ class LocationService : Service() {
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
-            kalmanFilter.update(locationResult.lastLocation!!)
             val location = locationResult.lastLocation
-
             location ?: return
-            if (lastLocation == null) {
-                lastLocation = location
-            }
-            lastLocation ?: return
-            println(location.distanceTo(lastLocation!!))
-            if (location.distanceTo(lastLocation!!) > 5f) {
-                lastLocation = location
+            val result = locationFilter.check(location)
+            println(result)
+            if (result) {
+                LastLocationHolder.setLocation(location)
                 CoroutineScope(Dispatchers.IO).launch {
-                    try{
+                    try {
                         saveGeoUseCase.execute(
                             GeoModel(
                                 location.latitude,
@@ -97,7 +98,7 @@ class LocationService : Service() {
                                 Calendar.getInstance().time.toString()
                             )
                         )
-                    } catch (e: Exception){
+                    } catch (e: Exception) {
                         e.printStackTrace()
                     }
 

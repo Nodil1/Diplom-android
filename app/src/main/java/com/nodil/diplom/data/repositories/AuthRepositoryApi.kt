@@ -13,7 +13,6 @@ class AuthRepositoryApi : AuthRepository, BaseRepository("auth/") {
             parameter("login", login)
             parameter("password", password)
         }.body() as String
-        println(body)
         return gsonConverter.fromJson(body, JsonElement::class.java)
     }
 

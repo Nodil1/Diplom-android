@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.nodil.diplom.MainActivity
 import com.nodil.diplom.R
 import com.nodil.diplom.databinding.ActivityLoginBinding
+import com.nodil.diplom.ui.home.HomeActivity
 import com.nodil.diplom.ui.services.LocationService
 import com.nodil.diplom.util.PermissionChecker
 import org.koin.android.ext.android.inject
@@ -29,19 +30,22 @@ class LoginActivity : AppCompatActivity() {
 
         permissionChecker.request(
             Manifest.permission.ACCESS_FINE_LOCATION,
-            100
+            111
         )
         permissionChecker.request(
             Manifest.permission.ACCESS_COARSE_LOCATION,
-            100
+            123
         )
         permissionChecker.request(
             Manifest.permission.ACCESS_NETWORK_STATE,
-            100
+            124
         )
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             permissionChecker.request(
-                Manifest.permission.ACCESS_BACKGROUND_LOCATION,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                ),
                 111
             )
         }
@@ -60,7 +64,7 @@ class LoginActivity : AppCompatActivity() {
             if (it) {
                 Snackbar.make(binding.root, "Успешный вход", Snackbar.LENGTH_SHORT)
                     .show()
-                startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
             } else {
                 binding.loginText.error = "Неправильный логин"
                 binding.passwordText.error = "Неправильный логин "

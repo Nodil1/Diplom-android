@@ -13,12 +13,5 @@ class TaskViewModel(
     private val getMyTasksUseCase: GetMyTasksUseCase
 ) : ViewModel(){
 
-    private val _myTask = MutableLiveData<Array<TaskModel>>()
-    val myTask: LiveData<Array<TaskModel>> get() = _myTask
 
-    fun loadMyTasks(){
-        CoroutineScope(Dispatchers.IO).launch {
-            _myTask.postValue(getMyTasksUseCase.execute())
-        }
-    }
 }

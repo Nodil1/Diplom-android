@@ -32,11 +32,8 @@ class TaskAttachmentRepositoryApi : BaseRepository("taskAttachment/"), TaskAttac
             )
             onUpload { bytesSentTotal, contentLength ->
                 onLoad((bytesSentTotal.toDouble() / contentLength.toDouble() * 100).toInt())
-                println("Sent $bytesSentTotal bytes from $contentLength Progress ${bytesSentTotal.toDouble() / contentLength.toDouble()}")
             }
         }
-        println(request.request.url)
-        println(request.body() as String)
     }
 
     override suspend fun saveSign(byteArray: ByteArray, idTask: Int, onLoad: (progress: Int) -> Unit) {
@@ -59,7 +56,6 @@ class TaskAttachmentRepositoryApi : BaseRepository("taskAttachment/"), TaskAttac
             }
 
         }
-        println(request.bodyAsText())
     }
 
 }

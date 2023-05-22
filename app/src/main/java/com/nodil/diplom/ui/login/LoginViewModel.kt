@@ -39,7 +39,6 @@ class LoginViewModel(
                 _isLoginSuccessful.postValue(true)
             } catch (exception: Exception) {
                 _isLoginSuccessful.postValue(false)
-                exception.printStackTrace()
             }
         }
     }

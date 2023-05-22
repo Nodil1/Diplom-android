@@ -37,11 +37,12 @@ val domainModule = module {
 // Data layer
 val dataModule = module {
     single<AuthRepository> { AuthRepositoryApi() }
-    single<GeoRepository> { GeoRepositoryApi() }
+    single<GeoRepository> { GeoRepositoryApi(get()) }
     single<TaskRepository> { TaskRepositoryApi() }
     single<TaskAttachmentRepository> { TaskAttachmentRepositoryApi() }
     single<WorkerActionRepository> {WorkerActionRepositoryApi()}
     single { SharedPreferencesStorage(androidContext()) }
+    single { LocalGeoRepository(get()) }
 
 }
 
@@ -51,7 +52,7 @@ val presentationModule = module {
     viewModel { SplashViewModel(get()) }
     viewModel { StatusViewModel() }
     viewModel { TaskViewModel(get()) }
-    viewModel { HomeViewModel(get(), get()) }
+    viewModel { HomeViewModel(get(), get(), get()) }
     viewModel { TaskAttachmentViewModel(get(), get()) }
 
 }

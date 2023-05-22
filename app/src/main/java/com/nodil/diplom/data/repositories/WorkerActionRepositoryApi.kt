@@ -14,7 +14,6 @@ class WorkerActionRepositoryApi: BaseRepository("workerAction/"), WorkerActionRe
         val response = client.post {
             setBody(action)
         }
-        println(response.bodyAsText())
 
     }
 
@@ -22,11 +21,9 @@ class WorkerActionRepositoryApi: BaseRepository("workerAction/"), WorkerActionRe
         val response = client.get("myStatus") {
 
         }
-        println(response.bodyAsText())
         val responseBody = response.body<JsonObject>()
         val model =response.body<WorkerStatusModel>()
         model.status = WorkerStatus.fromInt(responseBody.get("status").asInt)
-        println(responseBody)
         return model
     }
 }
